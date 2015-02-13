@@ -8,11 +8,8 @@ This repo helps you create a 2 nodes pool of docker containers to easily build
 en ELK stack.
 
 It's also the official image sources for :
-* [`ekino/base`](https://registry.hub.docker.com/u/ekino/base/)
- * [`ekino/kibana`](https://registry.hub.docker.com/u/ekino/kibana/)
- * [`ekino/java7`](https://registry.hub.docker.com/u/ekino/java7/)
-   * [`ekino/elasticsearch`](https://registry.hub.docker.com/u/ekino/elasticsearch/)
-   * [`ekino/logstash`](https://registry.hub.docker.com/u/ekino/logstash/)
+* [`ekino/base`](https://registry.hub.docker.com/u/ekino/base/) > [`ekino/kibana`](https://registry.hub.docker.com/u/ekino/kibana/)
+* [`ekino/base`](https://registry.hub.docker.com/u/ekino/base/) > [`ekino/java7`](https://registry.hub.docker.com/u/ekino/java7/) > [`ekino/elasticsearch`](https://registry.hub.docker.com/u/ekino/elasticsearch/) > [`ekino/logstash`](https://registry.hub.docker.com/u/ekino/logstash/)
 
 ## TL;DR
 
