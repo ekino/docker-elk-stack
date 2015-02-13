@@ -9,8 +9,16 @@ It's also the official image sources for :
 * [`ekino/base`](https://registry.hub.docker.com/u/ekino/base/)
  * [`ekino/kibana`](https://registry.hub.docker.com/u/ekino/kibana/)
  * [`ekino/java7`](https://registry.hub.docker.com/u/ekino/java7/)
-  * [`ekino/elasticsearch`](https://registry.hub.docker.com/u/ekino/elasticsearch/)
+   * [`ekino/elasticsearch`](https://registry.hub.docker.com/u/ekino/elasticsearch/)
    * [`ekino/logstash`](https://registry.hub.docker.com/u/ekino/logstash/)
+
+## TL;DR
+
+If you are on linux, simply execute this command :
+
+```bash
+curl -sSL https://raw.githubusercontent.com/ekino/docker-elk-stack/master/helper.sh | bash -s run
+```
 
 ## Usage
 
@@ -27,14 +35,12 @@ docker build -t ekino/base base
 
 Then build the `ekino/logstash:elasticseach` image
 ```bash
-docker build -t ekino/java7:base java7
-docker build -t ekino/elasticsearch:java7 elasticsearch
-docker build -t ekino/logstash:elasticsearch logstash
+j=""; for i in base java7 elasticsearch logstash; do docker build -t ekino/$i$j $i; j=":$i"; done
 ```
 
 And the `ekino/kibana:base` image
 ```bash
-docker build -t ekino/kibana:base kibana
+j=""; for i in base kibana; do docker build -t ekino/$i$j $i; j=":$i"; done
 ```
 
 ### Running containers
