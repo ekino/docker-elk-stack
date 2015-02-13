@@ -30,4 +30,3 @@ EXPOSE 8080
 
 # startup
 ADD kibana.sh /start.d/05-kibana
-ADD supervisord.sh /start.d/99-supervisord
