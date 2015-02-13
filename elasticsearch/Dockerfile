@@ -33,4 +33,3 @@ EXPOSE 9200
 
 # startup
 ADD elasticsearch.sh /start.d/10-elasticsearch
-ADD supervisord.sh /start.d/99-supervisord

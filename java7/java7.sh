@@ -1,3 +1,3 @@
 #!/bin/bash
 
-echo " ==> Starting ekino/java7:base"
+echo "$green ==> Starting ekino/java7:base$reset"

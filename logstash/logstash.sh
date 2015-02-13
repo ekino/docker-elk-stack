@@ -1,4 +1,4 @@
 #!/bin/bash
 
-echo " ==> Starting ekino/logstash:elasticsearch"
+echo "$green ==> Starting ekino/logstash:elasticsearch$reset"
 
