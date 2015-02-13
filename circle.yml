@@ -1,0 +1,15 @@
+machine:
+  services:
+    - docker
+
+dependencies:
+  override:
+    - ./helper.sh clear:all build run
+
+test:
+  pre:
+    - sleep 30
+    - docker logs elasticsearch-logstash.local
+    - docker logs kibana.local
+  override:
+    - curl -sS localhost

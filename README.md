@@ -1,5 +1,7 @@
 # Ekino Logging Stack
 
+[![Circle CI](https://circleci.com/gh/ekino/docker-elk-stack.svg?style=svg)](https://circleci.com/gh/ekino/docker-elk-stack)
+
 ## Description
 
 This repo helps you create a 2 nodes pool of docker containers to easily build
