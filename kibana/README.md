@@ -2,9 +2,10 @@
 
 ## Description
 
-Ekino's kibana container to be used with ekino/elasticsearch
+Part of ekino's `docker-elk-stack`
+Check out the [project page](https://github.com/ekino/docker-elk-stack)
 
-## Usage (standalone)
+## Basic usage (standalone)
 
 ```bash
 docker build -t ekino/kibana:base .
@@ -14,12 +15,5 @@ docker run -d -p 80:8080 ekino/kibana:base
 docker run -d -p 80:8080 -e ELASTICSEARCH_URL="http://remotehost:9200" ekino/kibana:base
 ```
 
-*Note: The `remotehost` url has to be resolved by the frontend, so if working local you should consider updating your /etc/hosts file*
-
-## Advanced Usage (with Elasticsearch+Logstash container)
-
-```bash
-docker run --name elcontainer -d -p 9200:9200 -p 5000:5000 -e ELASTICSEARCH_AUTH=none ekino/logstash:elasticsearch
-docker run --link elcontainer:elcontainer -d -p 80:8080 -e ELASTICSEARCH_URL="http://elcontainer:9200" ekino/kibana:base
-```
-
+**Important Note:**
+*The `remotehost` url has to be resolved by the frontend, so if working local you should consider updating your /etc/hosts file*
