@@ -19,7 +19,7 @@ ADD supervisord.conf /etc/supervisor/conf.d/base.conf
 
 # startup
 RUN mkdir -p /start.d
-ADD ascii.sh /start.d/00-ekino
+ADD base.sh /start.d/00-base
 ADD supervisord.sh /start.d/99-supervisord
 
 ADD start.sh /start.sh

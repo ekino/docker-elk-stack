@@ -19,5 +19,5 @@ $reset"
 
 echo "$green ==> Starting ekino/base$reset"
 
-echo "$cyan --> Setting supervisord loglevel to ${LOG_LEVEL="trace"}$reset"
-sed -i '/^supervisord/s/trace/'$LOG_LEVEL'/' /start.d/99-supervisord
+echo "$cyan --> Setting supervisor loglevel to ${SUPERVISOR_LOGLEVEL="trace"}$reset"
+sed -i '/^supervisord/s/trace/'$SUPERVISOR_LOGLEVEL'/' /start.d/99-supervisord
