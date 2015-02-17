@@ -1,6 +1,7 @@
 #!/bin/bash
 
 echo "$green ==> Starting ekino/elasticsearch:java7$reset"
+mkdir -p /var/log/{nginx,elasticsearch}
 
 if [ "${ELASTICSEARCH_AUTH}" = "none" ]
 then
