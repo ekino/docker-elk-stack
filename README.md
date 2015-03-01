@@ -21,27 +21,6 @@ curl -sSL https://raw.githubusercontent.com/ekino/docker-elk-stack/master/helper
 
 ## Usage
 
-### Building images
-
-*This step is optionnal as the images are publicly available on Docker registry*
-
-First clone the repository and build the `base` image
-```bash
-git clone https://github.com/ekino/docker-elk-stack.git
-cd docker-elk-stack
-docker build -t ekino/base base
-```
-
-Then build the `ekino/logstash:elasticseach` image
-```bash
-j=""; for i in base java7 elasticsearch logstash; do docker build -t ekino/$i$j $i; j=":$i"; done
-```
-
-And the `ekino/kibana:base` image
-```bash
-j=""; for i in base kibana; do docker build -t ekino/$i$j $i; j=":$i"; done
-```
-
 ### Running containers
 
 Start the first container with `elasticsearch` and `logstash`
