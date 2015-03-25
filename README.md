@@ -21,22 +21,24 @@ curl -sSL https://raw.githubusercontent.com/ekino/docker-elk-stack/master/helper
 
 ## Usage
 
-Containers :
+### Running containers with docker-compose
 
-* 1st container : elasticsearch 1.5.0 + logstash 1.4.2
-* 2nd container : logstash-forwarder
-* 3rd container : kibana 4
+If you have [`docker-compose`](https://github.com/docker/compose) (formerly `fig`)
+
+```bash
+docker-compose up -d
+```
 
 ### Running containers manually
 
 #### ElasticSearch/Logstash
 
-Start the first container with `elasticsearch` and `logstash`:
+Start the 1st container with `elasticsearch` and `logstash`:
 ```bash
-docker run --name es.local -d \
+docker run --name eslogstash -d \
   -p 9200:9200 \
   -p 5000:5000 \
-  -e CERTIFICATE_CN=logstash.endpoint.url
+  -e CERTIFICATE_CN=logstash.example.com
   ekino/logstash:elasticsearch
 ```
 
@@ -51,12 +53,12 @@ hosts to establish a secure SSL connection.
 Start the 2nd container `logstash-forwarder` with the shared secret SSL cert/key
 ```bash
 # copy SSL secrets from container to host
-docker cp es.local:/etc/logstash/ssl lumberjack-secrets
+docker cp eslogstash:/etc/logstash/ssl lumberjack-secrets
 
 # start container with volumes to your custom config file + shared secrets
-docker run --name forwarder.local -d \
-  --link es.local:logstash.endpoint.url \
-  -e LUMBERJACK_ENDPOINT=logstash.endpoint.url:5000 \
+docker run --name forwarder -d \
+  --link eslogstash:logstash.example.com \
+  -e LUMBERJACK_ENDPOINT=logstash.example.com:5000 \
   -v $(readlink -f lumberjack-secrets/ssl):/etc/logstash/ssl \
   ekino/logstash-forwarder
 ```
@@ -74,10 +76,10 @@ containers log files, accessible via container volumes...*
 
 Start the 3rd container `kibana` to connect the 1st one:
 ```bash
-docker run --name kibana.local -d \
-  --link es.local:elasticsearch.projectname.intra \
+docker run --name kibana -d \
+  --link eslogstash:elasticsearch.example.com \
   -p 80:5601 \
-  -e ELASTICSEARCH_URL="http://elasticsearch.projectname.intra:9200" \
+  -e ELASTICSEARCH_URL="http://elasticsearch.example.com:9200" \
   ekino/kibana:base
 ```
 
@@ -87,18 +89,11 @@ server, not from the browser anymore, which will make things easier to manage
 
 Finally open up your browser at [localhost](http://localhost/)
 
-### Running containers with docker-compose
-
-If you have [`docker-compose`](https://github.com/docker/compose) (formerly `fig`)
-
-```bash
-docker-compose up -d
-```
-
 ## Further Reading
 
-The `helper.sh` and `docker-compose` version use a shared data container volume
-between `elasticsearch/logstash` and `logstash-forwarder`.
+The `TL;DR` and `docker-compose` spin up 3 docker container running on the same
+host, so they use a shared data container volume between
+`elasticsearch/logstash` and `logstash-forwarder`.
 
 The manual version uses `docker cp` to extract the ssl folder so it can be
 distributed if containers are not runned on the same host.
