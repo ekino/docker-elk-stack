@@ -27,7 +27,7 @@ then
     -out    $SSLPATH/logstash-forwarder.crt \
     -subj   "/C=FR/ST=Ile de France/L=Paris/O=${O}/OU=${OU}/CN=${CN}/emailAddress=${EMAIL}"
 else
-  if [ ! -f "$SSLPATH/logstash-forwarder.key" ] || [ ! "$SSLPATH/logstash-forwarder.crt" ]
+  if [ ! -f "$SSLPATH/logstash-forwarder.key" ] || [ ! -f "$SSLPATH/logstash-forwarder.crt" ]
   then
     echo "$red   > ERROR: Missing files in $SSLPATH"
     echo "$red     If you \$NO_SSL_CERTS environment variable so no SSL cert are generated at startup"
