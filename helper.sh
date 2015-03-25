@@ -1,7 +1,8 @@
 #!/bin/bash
 #set -x
 
-command -v docker || curl http://get.docker.com/ | sh
+command -v docker || ( curl http://get.docker.com/ | sh ; sudo usermod -aG docker $(whoami) )
+
 
 cyan="$(tput setaf 6)"
 green="$(tput setaf 2)"
