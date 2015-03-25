@@ -53,8 +53,6 @@ do
 
     'run') #===================================================================
 
-set -x
-
       # Starting elasticsearch and logstash -----------------------------------
 
       docker run --name $ES_NAME -d \
@@ -89,8 +87,6 @@ set -x
 
       w=5 ; echo -e "\n${cyan}==> Waiting ${w}s for kibana container${reset}" ; sleep $w
       docker logs $(docker ps -lq)
-
-set +x
 
       # The end ---------------------------------------------------------------
 
