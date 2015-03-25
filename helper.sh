@@ -59,6 +59,7 @@ do
         -p 9200:9200 \
         -p 5000:5000 \
         -e CERTIFICATE_CN=$LOGSTASH_FQDN \
+        -v /etc/logstash/ssl \
         ekino/logstash:elasticsearch
 
       w=5 ; echo -e "\n${cyan}==> Waiting ${w}s for elasticsearch+logstash container${reset}" ; sleep $w
@@ -66,12 +67,10 @@ do
 
       # Starting logstash-forwarder -------------------------------------------
 
-      secrets=$(mktemp -d)
-      docker cp $ES_NAME:/etc/logstash/ssl $secrets
       docker run --name $FW_NAME -d \
         --link $ES_NAME:$LOGSTASH_FQDN \
         -e LUMBERJACK_ENDPOINT=$LUMBERJACK_URL \
-        -v $secrets/ssl:/etc/logstash/ssl \
+        --volumes-from $ES_NAME \
         ekino/logstash-forwarder
 
       w=5 ; echo -e "\n${cyan}==> Waiting ${w}s for forwarder container${reset}" ; sleep $w
