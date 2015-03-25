@@ -10,52 +10,90 @@ red="$(tput setaf 1)"
 bred="$(tput bold ; tput setaf 1)"
 reset="$(tput sgr0)"
 
-EL_NAME=elasticsearch-logstash.local
-K_NAME=kibana.local
+ES_NAME=es_logstash
+FW_NAME=forwarder
+K_NAME=kibana
+
+ELASTIC_FQDN="elasticsearch.example.com"
+LOGSTASH_FQDN="logstash.example.com"
+LUMBERJACK_URL="${LOGSTASH_FQDN}:5000"
 
 echo ${1%:*}
 
 for args in $@
 do
   case ${1%:*} in
-    'clear'|'clean')
+
+    'clear'|'clean') # ========================================================
+
       echo -e "\n${cyan}==> Killing and removing running containers${reset}"
-      docker rm $(docker kill $EL_NAME $K_NAME)
-      [ "${1#*:}" = "all" ] && \
+      docker rm $(docker kill $ES_NAME $FW_NAME $K_NAME)
+      [ "${1#*:}" = "images" ] && \
       echo -e "\n${cyan}==> Removing untagged/dangled images${reset}" && \
       docker rmi $(docker images -qf dangling=true)
       ;;
-    'build')
-      # using cache or not
+
+    'build') # ================================================================
+
+      # using cache or not ----------------------------------------------------
+
       nocache=
       [ "${1#*:}" = "nocache" ] && nocache="--no-cache"
 
-      # building elasticsearch+logstah
+      # building elasticsearch+logstah ----------------------------------------
+
       echo -e "\n${cyan}==> Building base, java7, elasticsearch and logstash images${reset}"
-      j=""; for i in base java7 elasticsearch logstash; do echo "$(tput bold)--- $i ---$(tput sgr0)"; docker build $nocache -t ekino/$i$j $i; j=":$i"; done
-      # building kibana
+      j=""; for i in java7 elasticsearch logstash; do echo "$(tput bold)--- $i ---$(tput sgr0)"; docker build $nocache -t ekino/$i$j $i; j=":$i"; done
+
+      # building kibana -------------------------------------------------------
+
       echo -e "\n${cyan}==> Building base and kibana images${reset}"
-      j=""; for i in base kibana; do echo "$(tput bold)--- $i ---$(tput sgr0)"; docker build $nocache -t ekino/$i$j $i; j=":$i"; done
+      j=""; for i in kibana; do echo "$(tput bold)--- $i ---$(tput sgr0)"; docker build $nocache -t ekino/$i$j $i; j=":$i"; done
       ;;
-    'run')
+
+    'run') #===================================================================
+
 set -x
-      docker run --name $EL_NAME -d -p 9200:9200 -p 5000:5000 -e ELASTICSEARCH_AUTH=none ekino/logstash:elasticsearch
-set +x
+
+      # Starting elasticsearch and logstash -----------------------------------
+
+      docker run --name $ES_NAME -d \
+        -p 9200:9200 \
+        -p 5000:5000 \
+        -e CERTIFICATE_CN=$LOGSTASH_FQDN \
+        ekino/logstash:elasticsearch
+
       w=5 ; echo -e "\n${cyan}==> Waiting ${w}s for elasticsearch+logstash container${reset}" ; sleep $w
       docker logs $(docker ps -lq)
 
-set -x
-      docker run --name $K_NAME --link $EL_NAME:$EL_NAME -d -p 80:5601 -e ELASTICSEARCH_URL="http://$EL_NAME:9200" ekino/kibana:base
-set +x
+      # Starting logstash-forwarder -------------------------------------------
+
+      secrets=$(mktemp -d)
+      docker cp $ES_NAME:/etc/logstash/ssl $secrets
+      docker run --name $FW_NAME -d \
+        --link $ES_NAME:$LOGSTASH_FQDN \
+        -e LUMBERJACK_ENDPOINT=$LUMBERJACK_URL \
+        -v $secrets/ssl:/etc/logstash/ssl \
+        ekino/logstash-forwarder
+
+      w=5 ; echo -e "\n${cyan}==> Waiting ${w}s for forwarder container${reset}" ; sleep $w
+      docker logs $(docker ps -lq)
+
+      # Starting kibana -------------------------------------------------------
+
+      docker run --name $K_NAME -d \
+        --link $ES_NAME:$ELASTIC_FQDN \
+        -p 80:5601 \
+        -e ELASTICSEARCH_URL="http://$ELASTIC_FQDN:9200" \
+        ekino/kibana:base
+
       w=5 ; echo -e "\n${cyan}==> Waiting ${w}s for kibana container${reset}" ; sleep $w
       docker logs $(docker ps -lq)
-      if [[ $(host "$EL_NAME" | grep -c "not found") -ne 0 ]] && [[ $(grep -c "$EL_NAME" /etc/hosts) -eq 0 ]]
-      then
-        echo -e "\n${cyan}==> Adding '$EL_NAME' entry to /etc/hosts ${bred}(requires sudo)${reset}"
-        sudo sed -i '0,/^127.0.0.1/s/$/ '$EL_NAME'/' /etc/hosts
-      fi
 
-      # The end
+set +x
+
+      # The end ---------------------------------------------------------------
+
       cat <<EOF
   ${green}
   Check the dashboard :

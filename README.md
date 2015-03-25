@@ -8,8 +8,8 @@ This repo helps you create a 2 nodes pool of docker containers to easily build
 en ELK stack.
 
 It's also the official image sources for :
-* [`ekino/base`](https://registry.hub.docker.com/u/ekino/base/) > [`ekino/kibana`](https://registry.hub.docker.com/u/ekino/kibana/)
-* [`ekino/base`](https://registry.hub.docker.com/u/ekino/base/) > [`ekino/java7`](https://registry.hub.docker.com/u/ekino/java7/) > [`ekino/elasticsearch`](https://registry.hub.docker.com/u/ekino/elasticsearch/) > [`ekino/logstash`](https://registry.hub.docker.com/u/ekino/logstash/)
+* [`ekino/kibana`](https://registry.hub.docker.com/u/ekino/kibana/)
+* [`ekino/java7`](https://registry.hub.docker.com/u/ekino/java7/) > [`ekino/elasticsearch`](https://registry.hub.docker.com/u/ekino/elasticsearch/) > [`ekino/logstash`](https://registry.hub.docker.com/u/ekino/logstash/)
 
 ## TL;DR
 
@@ -38,8 +38,6 @@ docker run --name es.local -d \
   -p 5000:5000 \
   -e CERTIFICATE_CN=logstash.endpoint.url
   ekino/logstash:elasticsearch
-
-docker logs $(docker ps -lq)
 ```
 
 It starts a container which will autogenerate the required SSL certificate for
