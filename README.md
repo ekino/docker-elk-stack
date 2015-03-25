@@ -29,6 +29,8 @@ If you have [`docker-compose`](https://github.com/docker/compose) (formerly `fig
 docker-compose up -d
 ```
 
+**Open up your browser at [localhost](http://localhost/)**
+
 ### Running containers manually
 
 #### ElasticSearch/Logstash
@@ -87,7 +89,7 @@ docker run --name kibana -d \
 server, not from the browser anymore, which will make things easier to manage
 (elasticsearch doesn't have to be opened to internet anymore, etc...)*
 
-Finally open up your browser at [localhost](http://localhost/)
+**Finally open up your browser at [localhost](http://localhost/)**
 
 ## Further Reading
 
