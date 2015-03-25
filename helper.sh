@@ -32,20 +32,23 @@ do
 
       # building elasticsearch+logstah
       echo -e "\n${cyan}==> Building base, java7, elasticsearch and logstash images${reset}"
-      j=""; for i in base java7 elasticsearch logstash; do docker build -t ekino/$i$j $i; j=":$i"; done
+      j=""; for i in base java7 elasticsearch logstash; do echo "$(tput bold)--- $i ---$(tput sgr0)"; docker build $nocache -t ekino/$i$j $i; j=":$i"; done
       # building kibana
       echo -e "\n${cyan}==> Building base and kibana images${reset}"
-      j=""; for i in base kibana; do docker build -t ekino/$i$j $i; j=":$i"; done
+      j=""; for i in base kibana; do echo "$(tput bold)--- $i ---$(tput sgr0)"; docker build $nocache -t ekino/$i$j $i; j=":$i"; done
       ;;
     'run')
+set -x
       docker run --name $EL_NAME -d -p 9200:9200 -p 5000:5000 -e ELASTICSEARCH_AUTH=none ekino/logstash:elasticsearch
+set +x
       w=5 ; echo -e "\n${cyan}==> Waiting ${w}s for elasticsearch+logstash container${reset}" ; sleep $w
       docker logs $(docker ps -lq)
 
-      docker run --name $K_NAME --link $EL_NAME:$EL_NAME -d -p 80:8080 -e ELASTICSEARCH_URL="http://$EL_NAME:9200" ekino/kibana:base
+set -x
+      docker run --name $K_NAME --link $EL_NAME:$EL_NAME -d -p 80:5601 -e ELASTICSEARCH_URL="http://$EL_NAME:9200" ekino/kibana:base
+set +x
       w=5 ; echo -e "\n${cyan}==> Waiting ${w}s for kibana container${reset}" ; sleep $w
       docker logs $(docker ps -lq)
-
       if [[ $(host "$EL_NAME" | grep -c "not found") -ne 0 ]] && [[ $(grep -c "$EL_NAME" /etc/hosts) -eq 0 ]]
       then
         echo -e "\n${cyan}==> Adding '$EL_NAME' entry to /etc/hosts ${bred}(requires sudo)${reset}"

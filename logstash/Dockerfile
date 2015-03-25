@@ -4,21 +4,18 @@ FROM ekino/elasticsearch:java7
 MAINTAINER Matthieu Fronton <fronton@ekino.com>
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV LOGSTASH_VERSION_MAJOR 1.4
-ENV LOGSTASH_VERSION_FULL 1.4.2-1-2c0f5a1
+ENV LOGSTASH_VERSION 1.4.2
 
 # prerequisites
-WORKDIR /etc/pki/tls
-RUN apt-get update
-RUN apt-get install -y openssl
-RUN mkdir private certs
-RUN openssl req -x509 -batch -nodes -days 3650 -newkey rsa:2048 -keyout private/logstash-forwarder.key -out certs/logstash-forwarder.crt
+RUN apt-get update && apt-get install -y openssl && mkdir -p /etc/logstash/ssl
 
 # install logstash
 WORKDIR /
-RUN echo "deb http://packages.elasticsearch.org/logstash/${LOGSTASH_VERSION_MAJOR}/debian stable main" >> /etc/apt/sources.list.d/logstash.list
-RUN apt-get update && apt-get install logstash=${LOGSTASH_VERSION_FULL}
-RUN mkdir -p /etc/pki/tls/certs /etc/pki/tls/private
+RUN curl -o logstash.tar.gz https://download.elasticsearch.org/logstash/logstash/logstash-${LOGSTASH_VERSION}.tar.gz
+RUN mkdir -p /opt
+RUN tar xzf logstash.tar.gz -C /opt
+RUN ln -sf /opt/logstash-${LOGSTASH_VERSION} /opt/logstash
+RUN rm -f logstash.tar.gz
 
 # cleanup
 RUN apt-get clean

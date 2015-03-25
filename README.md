@@ -21,23 +21,76 @@ curl -sSL https://raw.githubusercontent.com/ekino/docker-elk-stack/master/helper
 
 ## Usage
 
-### Running containers
+Containers :
 
-Start the first container with `elasticsearch` and `logstash`
+* 1st container : elasticsearch 1.5.0 + logstash 1.4.2
+* 2nd container : logstash-forwarder
+* 3rd container : kibana 4
+
+### Running containers manually
+
+#### ElasticSearch/Logstash
+
+Start the first container with `elasticsearch` and `logstash`:
 ```bash
-docker run --name elcontainer -d -p 9200:9200 -p 5000:5000 -e ELASTICSEARCH_AUTH=none ekino/logstash:elasticsearch
-sleep 5 ; docker logs $(docker ps -lq)
+docker run --name es.local -d \
+  -p 9200:9200 \
+  -p 5000:5000 \
+  -e CERTIFICATE_CN=logstash.endpoint.url
+  ekino/logstash:elasticsearch
+
+docker logs $(docker ps -lq)
 ```
 
-And connect the second standalone container with `kibana`
+It starts a container which will autogenerate the required SSL certificate for
+logstash's [lumberjack input](http://logstash.net/docs/1.4.2/inputs/lumberjack).
+
+For `CERTIFICATE_CN` you must specify the FQDN that will be used by *remote*
+hosts to establish a secure SSL connection.
+
+#### Logstash-Forwarder
+
+Start the 2nd container `logstash-forwarder` with the shared secret SSL cert/key
 ```bash
-docker run --link elcontainer:elcontainer -d -p 80:8080 -e ELASTICSEARCH_URL="http://elcontainer:9200" ekino/kibana:base
-sleep 5 ; docker logs $(docker ps -lq)
+# copy SSL secrets from container to host
+docker cp es.local:/etc/logstash/ssl lumberjack-secrets
+
+# start container with volumes to your custom config file + shared secrets
+docker run --name forwarder.local -d \
+  --link es.local:logstash.endpoint.url \
+  -e LUMBERJACK_ENDPOINT=logstash.endpoint.url:5000 \
+  -v $(readlink -f lumberjack-secrets/ssl):/etc/logstash/ssl \
+  ekino/logstash-forwarder
 ```
+
+It will send the first log entries to `logstash` and so init the elasticsearch
+indexes. This will prevent the messy
+[Unable to fetch mapping](https://github.com/elastic/kibana/issues/1950) error
+message !
+
+*Note: For real life use of the container, consider using custom log file
+(`-v /path/to/your/config.json:/etc/logstash/config.json`) to read other
+containers log files, accessible via container volumes...*
+
+#### Kibana
+
+Start the 3rd container `kibana` to connect the 1st one:
+```bash
+docker run --name kibana.local -d \
+  --link es.local:elasticsearch.projectname.intra \
+  -p 80:5601 \
+  -e ELASTICSEARCH_URL="http://elasticsearch.projectname.intra:9200" \
+  ekino/kibana:base
+```
+
+*Note: Since Kibana 4 request to `ELASTICSEARCH_URL` will be performed from the
+server, not from the browser anymore, which will make things easier to manage
+(elasticsearch doesn't have to be opened to internet anymore, etc...)*
 
 Finally open up your browser at [localhost](http://localhost/)
 
-**Important Note:**  
-*The `elcontainer` url used in above ELASTICSEARCH_URL has to resolvable at 
-host level ! The browser will try to access this url so you may need to update 
-you `/etc/hosts` accordingly*
+### Running containers with docker-compose
+
+TODO
+
+
