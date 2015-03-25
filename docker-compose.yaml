@@ -1,0 +1,28 @@
+eslogstash:
+  image: ekino/logstash:elasticsearch
+  ports:
+    - "9200:9200"
+    - "5000:5000"
+  environment:
+    - CERTIFICATE_CN=logstash.example.com
+  volumes:
+    - /etc/logstash/ssl
+
+forwarder:
+  image: ekino/logstash-forwarder
+  links:
+    - eslogstash:logstash.example.com
+  environment:
+    - LUMBERJACK_ENDPOINT=logstash.example.com:5000
+  volumes_from:
+    - eslogstash
+
+kibana:
+  image: ekino/kibana:base
+  links:
+    - eslogstash:elasticsearch.example.com
+  ports:
+    - "80:5601"
+  environment:
+    - ELASTICSEARCH_URL=http://elasticsearch.example.com:9200
+
