@@ -9,7 +9,8 @@ dependencies:
 test:
   pre:
     - sleep 30
-    - docker logs elasticsearch-logstash.local
-    - docker logs kibana.local
+    - docker logs es_logstash
+    - docker logs forwarder
+    - docker logs kibana
   override:
-    - curl -sS localhost
+    - curl -sS http://localhost/
