@@ -89,6 +89,16 @@ Finally open up your browser at [localhost](http://localhost/)
 
 ### Running containers with docker-compose
 
-TODO
+If you have [`docker-compose`](https://github.com/docker/compose) (formerly `fig`)
 
+```bash
+docker-compose up -d
+```
 
+## Further Reading
+
+The `helper.sh` and `docker-compose` version use a shared data container volume
+between `elasticsearch/logstash` and `logstash-forwarder`.
+
+The manual version uses `docker cp` to extract the ssl folder so it can be
+distributed if containers are not runned on the same host.
