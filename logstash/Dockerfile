@@ -1,17 +1,17 @@
 # --- LOGSTASH ---
 
-FROM ekino/elasticsearch:java7
+FROM ekino/elasticsearch:oracle8
 MAINTAINER Matthieu Fronton <fronton@ekino.com>
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV LOGSTASH_VERSION 1.4.2
+ENV LOGSTASH_VERSION 2.2.2
 
 # prerequisites
 RUN apt-get update && apt-get install -y openssl && mkdir -p /etc/logstash/ssl
 
 # install logstash
 WORKDIR /
-RUN curl -o logstash.tar.gz https://download.elasticsearch.org/logstash/logstash/logstash-${LOGSTASH_VERSION}.tar.gz
+RUN curl -o logstash.tar.gz https://download.elastic.co/logstash/logstash/logstash-${LOGSTASH_VERSION}.tar.gz
 RUN mkdir -p /opt
 RUN tar xzf logstash.tar.gz -C /opt
 RUN ln -sf /opt/logstash-${LOGSTASH_VERSION} /opt/logstash
